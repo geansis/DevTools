@@ -1,6 +1,7 @@
-#Include 'Protheus.ch'
+#INCLUDE 'PROTHEUS.CH'
 
 #DEFINE	CR	Chr(13) + Chr(10)
+
 
 /*/{Protheus.doc} RUNUPD
 @description Selecionar os compatibilizadores que deseja executar.
@@ -15,28 +16,35 @@
 
 @author  Helitom Silva
 @since   25/11/2013
-@version 3.0 - Incluido Pe e Combobox para seleção de Grupos de Compatibilizadores.
+@version 3.0 - Incluido PE e Combobox para seleção de Grupos de Compatibilizadores.
+
+@author  Helitom Silva
+@since   09/02/2015
+@version 4.0 - Melhoria na Interface usando a Classe FwLayer.
 
 /*/
 User Function RUNUPD()
 	
-	Local cRotina 	:= "Compatibilizador de Usuário."	
-	Local nSuperior	:= 051
+	Local cRotina 	:= "Compatibilizador"	
+	Local nSuperior	:= 031
 	Local nEsquerda	:= 000
 	Local nInferior	:= 150
-	Local nDireita	:= 300		
-
+	Local nDireita	:= 350		
+	Local nX		:= 300		
+	Local oFWLayer  := FWLayer():New()
+	
 	Private _lConect  := .F.	
 	Private cCodEmp   := '99'
 	Private cCodFil   := '01'
 	
 	Private lExistPe  := ExistBlock('RUNUPDPE') 
 	Private aItGrupo  := {}
+	Private aIdaGPUPD := {}
 	Private nItGrupo  := 0
 	Private cCompatib := Space(8)
-	Private aCols	  := {}		 			
+	Private aCols	  := {}	
 
-	SetPrvt("oWindow","oDbGrid","oGetGrupo","oCombGrupo")	
+	SetPrvt("oDlgRun","oSayGrupo","oGetGrupo","oCombGrupo","oDbGrid")	
 		
 	CarrConfig()
     
@@ -52,50 +60,75 @@ User Function RUNUPD()
 		Return
 	EndIf	
 	
-	aHeader	:= MontaHeader()
-	
-	oWindow	:= MSDialog():New(000, 000, 350, 600, cRotina,,,.F.,,,,,,.T.,,,.T.)
-	
-	TSay():Create(oWindow,{||'Grupo Updates: '},  30, 10,,,,,,.T.,CLR_BLACK,CLR_WHITE,200,20)
+	Set Date Brit
+	Set Century ON
 
+	SetPrvt("oDlgRun","oWinHeaderL","oWinHeaderR","oWinDet","oCombGrupo","oGetGrupo","oDbGrid","oBtnOk","oBtnClose")
+
+	oDlgRun	  := MSDialog():New(000, 000, 450, 700, cRotina,,,.F.,,,,,,.T.,,,.T.)
+
+	oFWLayer:Init( oDlgRun, .F., .T. )
+
+	oFWLayer:AddLine( 'LHEADER', 20, .F. )
+	oFWLayer:AddCollumn( 'CHEADERLEFT', 70, .T., 'LHEADER' )
+	oFWLayer:AddCollumn( 'CHEADERRIGHT', 30, .T., 'LHEADER' )
+	oFWLayer:AddWindow( 'CHEADERLEFT', 'WHEADER', 'Grupo de Updates', 100, .F., .T.,, 'LHEADER'  )
+	oFWLayer:AddWindow( 'CHEADERRIGHT', 'WHEADER', 'Opções', 100, .F., .T.,, 'LHEADER'  )
+
+	oWinHeaderL := oFWLayer:GetWinPanel( 'CHEADERLEFT', 'WHEADER', 'LHEADER' ) 
+			
 	If lExistPe
 		
 		aItGrupo := ExecBlock('RUNUPDPE', .F., .F.)
+		
+		If ExistBlock('IDAGPUPD') 
+			If Valtype(aIdaGPUPD := ExecBlock('IDAGPUPD', .F., .F.)) == 'A' .and. Len(aIdaGPUPD) > 0
+				For nX := 1 to Len(aIdaGPUPD)
+					aAdd(aItGrupo, aIdaGPUPD[nX])
+				Next
+			EndIf
+		EndIf
 		
 		If !Len(aItGrupo) > 0
 			MsgAlert('Atenção o PE: RUNUPDPE não retornou Grupo(s) de Compatibilizadores, por favor exclua-o do RPO ou corrija-o para que retorne os Grupos!')
 			Return
 		EndIf
 		
-		oCombGrupo := TComboBox():New( 30,60,{|u| If(PCount()>0,cCompatib:=u,cCompatib)},aItGrupo,200,010,oWindow,,,,CLR_BLACK,CLR_WHITE,.T.,,"",,,,,,,cCompatib )		
-		
+		oCombGrupo := TComboBox():New( 02, 02, {|u| If(PCount()>0,cCompatib:=u,cCompatib)},aItGrupo,150,010,oWinHeader,,,,CLR_BLACK,CLR_WHITE,.T.,,"",,,,,,,cCompatib )		
 		oCombGrupo:bChange := {|| MontaCols()}
-	
 		oCombGrupo:SetFocus()
 		
 	Else		
 	
-		oGetGrupo := TGet():New(30,60,	{|u| If(PCount()>0, cCompatib := u, cCompatib )},oWindow,030,009,"@!",,CLR_BLACK,CLR_WHITE,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,"cCompatib")
-							   
+		oGetGrupo := TGet():New(02, 02, {|u| If(PCount()>0, cCompatib := u, cCompatib )},oWinHeader,030,009,"@!",,CLR_BLACK,CLR_WHITE,,.F.,,.T.,,.F.,,.F.,.F.,,.F.,.F.,,"cCompatib")
 		oGetGrupo:bChange	:= {|| MontaCols() }
-		
 		oGetGrupo:SetFocus()
 		
 	EndIf
+
+	oWinHeaderR := oFWLayer:GetWinPanel( 'CHEADERRIGHT', 'WHEADER', 'LHEADER' ) 
+
+	oBtnOk    := TButton():New(002, 004, "&Ok",		oWinHeaderR, {|| ExecUPDs()}, 040,015,,,,.T.,,"",,,,.F.)
+	oBtnClose := TButton():New(002, 050, "&Fechar",	oWinHeaderR, {|| oDlgRun:End() }, 040,015,,,,.T.,,"",,,,.F.)
 	
-	oDbGrid	:= DbGrid():Create(nSuperior,nEsquerda,nInferior,nDireita,GD_UPDATE/*/GD_INSERT+GD_DELETE+GD_UPDATE/*/,,,,,,,,,, oWindow, MontaHeader(), aCols, 1, 0)
+	oFWLayer:AddLine( 'LDET', 80, .F. )	
+	oFWLayer:AddCollumn( 'CDET', 100, .T., 'LDET' )
+	oFWLayer:addWindow( 'CDET', 'WDET', 'Compatibilizadores', 100, .F., .T.,, 'LDET' )
+	
+	oWinDet := oFWLayer:GetWinPanel( 'CDET', 'WDET', 'LDET' )
+		
+	oDbGrid	:= DbGrid():Create(nSuperior,nEsquerda,nInferior,nDireita,GD_UPDATE/*/GD_INSERT+GD_DELETE+GD_UPDATE/*/,,,,,,,,,, oWinDet, MontaHeader(), aCols, 1, 1)
 	oDbGrid:oBrowse:lHScroll  	:= .F.
 	oDbGrid:oBrowse:nScrollType := 1
-		
-	TButton():New(155,090,"&Ok",		oWindow,{|| ExecUPDs()},040,015,,,,.T.,,"",,,,.F.)
-	TButton():New(155,150,"&Fechar",	oWindow,{|| oWindow:End() },	040,015,,,,.T.,,"",,,,.F.)
-		
+	oDbGrid:oBrowse:Align		:= CONTROL_ALIGN_ALLCLIENT
+	
 	If lExistPe
 		Eval(oCombGrupo:bChange)
 	EndIf
 			
-	oWindow:lCentered := .T.	
-	oWindow:Activate() 
+	oDlgRun:lEscClose := .T.		
+	oDlgRun:lCentered := .T.	
+	oDlgRun:Activate() 
 		
 Return
 
@@ -113,6 +146,7 @@ Static Function MontaHeader()
 	
 	aAdd(aRet, {"Funcao"   ,	"FUNC" , 	"@!",   10,	0,"" ,,"C" ,,,,,,"V",,,.F.})
 	aAdd(aRet, {"Descricao",	"DESC" , 	"@!",	50,	0,"" ,,"C" ,,,,,,"V",,,.F.})
+	aAdd(aRet, {"Data"	   ,	"DATA" , 	"@D",	8,	0,"" ,,"D" ,,,,,,"V",,,.F.})
 	
 Return aRet
 
@@ -147,6 +181,7 @@ Static Function MontaCols()
 				oDbGrid:aCols[nX, 1] := oDbGrid:hoNo 
 				oDbGrid:aCols[nX, 2] := aArrayRet[nX, 1]
 				oDbGrid:aCols[nX, 3] := aArrayRet[nX, 2]	
+				oDbGrid:aCols[nX, 4] := Iif(Len(aArrayRet[nX]) > 2, CtoD(aArrayRet[nX, 3]), CtoD('//'))	
 						
 				oDbGrid:aCols[nX, len(oDbGrid:aheader) + 1] := .F.    
 											
@@ -227,7 +262,7 @@ Static Function ExecUPDs()
 	
 	oDbGrid:PosLinha(1)
 	
-Return Nil
+Return
 
 
 /*/{Protheus.doc} MsgSelEmp
