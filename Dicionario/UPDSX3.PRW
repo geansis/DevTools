@@ -110,11 +110,13 @@ METHOD CREATE() CLASS UPDSX3
 RETURN SELF
 
 /*{ProtheusDoc} UPDSX3:CLONE
+	@description clona um campo e adiciona um novo campo ao modelo.
 
-	clona um campo e adiciona um novo campo ao modelo
+	@history 16/05/2015, Geanderson Silva, Cria��o do campo arquivo para evitar criar campo na tabela errada.
 
-	@param	cFieldOri campo do dicionário que será usado para criar o campo cFieldDes
-	@param	cFieldDes nome do novo campo
+	@param	cFieldOri,character, campo do dicionário que será usado para criar o campo cFieldDes
+	@param	cFieldDes,character, nome do novo campo
+	@param	cArquivo,character, nome da tabela da SX2
 	@developer	fernando.alencar
 	@data		19 de novembro de 2011
 */
