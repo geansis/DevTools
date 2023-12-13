@@ -4,6 +4,7 @@
 USER FUNCTION TSTUPDX3()
 
 	SX3 := UPDSX3():CREATE()
+	SX3:SETDICBANCO(.T.) //Seta que utilizará as configurações de dicionário no banco de dados
 
 	SX3:CLONE("C6_PRCVEN", "C6_PRCUSD")
 	SX3:S("TITULO"	,"Prc. Dolar"	)
