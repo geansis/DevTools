@@ -12,11 +12,11 @@
 
 @author  Helitom Silva
 @since   27/11/2013
-@version 2.0 - Incluido uso da DbGrid e Conex„o com empresa Inicial.
+@version 2.0 - Incluido uso da DbGrid e Conex√£o com empresa Inicial.
 
 @author  Helitom Silva
 @since   25/11/2013
-@version 3.0 - Incluido PE e Combobox para seleÁ„o de Grupos de Compatibilizadores.
+@version 3.0 - Incluido PE e Combobox para sele√ß√£o de Grupos de Compatibilizadores.
 
 @author  Helitom Silva
 @since   09/02/2015
@@ -46,16 +46,9 @@ User Function RUNUPD()
 
 	SetPrvt("oDlgRun","oSayGrupo","oGetGrupo","oCombGrupo","oDbGrid")	
 		
-	CarrConfig()
-    
-    If MsgYesNo('Deseja executar em modo exclusivo?')
-    	If !AcessoExcPt()
-			MsgStop( "N„o foi possÌvel acessar em modo exclusivo!" )
-			Return
-		EndIf
-    EndIf
+	CarrConfig() 
      		
-	/* Conexao com empresa Inicial para ter acesso as demais, pois as vezes alguns clientes n„o tem a empresa 99 */
+	/* Conexao com empresa Inicial para ter acesso as demais, pois as vezes alguns clientes n√£o tem a empresa 99 */
 	If !MsgSelEmp()
 		Return
 	EndIf	
@@ -73,7 +66,7 @@ User Function RUNUPD()
 	oFWLayer:AddCollumn( 'CHEADERLEFT', 70, .T., 'LHEADER' )
 	oFWLayer:AddCollumn( 'CHEADERRIGHT', 30, .T., 'LHEADER' )
 	oFWLayer:AddWindow( 'CHEADERLEFT', 'WHEADER', 'Grupo de Updates', 100, .F., .T.,, 'LHEADER'  )
-	oFWLayer:AddWindow( 'CHEADERRIGHT', 'WHEADER', 'OpÁıes', 100, .F., .T.,, 'LHEADER'  )
+	oFWLayer:AddWindow( 'CHEADERRIGHT', 'WHEADER', 'Op√ß√µes', 100, .F., .T.,, 'LHEADER'  )
 
 	oWinHeaderL := oFWLayer:GetWinPanel( 'CHEADERLEFT', 'WHEADER', 'LHEADER' ) 
 			
@@ -90,7 +83,7 @@ User Function RUNUPD()
 		EndIf
 		
 		If !Len(aItGrupo) > 0
-			MsgAlert('AtenÁ„o o PE: RUNUPDPE n„o retornou Grupo(s) de Compatibilizadores, por favor exclua-o do RPO ou corrija-o para que retorne os Grupos!')
+			MsgAlert('Aten√ß√£o o PE: RUNUPDPE n√£o retornou Grupo(s) de Compatibilizadores, por favor exclua-o do RPO ou corrija-o para que retorne os Grupos!')
 			Return
 		EndIf
 		
@@ -206,7 +199,7 @@ Static Function MontaCols()
 		oDbGrid:Limpar()
 		oDbGrid:Refresh()
 		  
-		MsgAlert("N„o foi encontrada a funÁ„o: " + cCompatib)
+		MsgAlert("N√£o foi encontrada a fun√ß√£o: " + cCompatib)
 					
 	EndIf
 	 
@@ -257,7 +250,7 @@ Static Function ExecUPDs()
 		EndIf
 		
 	Else
-		MsgAlert('Nenhum compatibilizador v·lido marcado!')
+		MsgAlert('Nenhum compatibilizador v√°lido marcado!')
 	EndIf
 	
 	oDbGrid:PosLinha(1)
@@ -266,7 +259,7 @@ Return
 
 
 /*/{Protheus.doc} MsgSelEmp
-@description Formulario para SeleÁ„o de Empresa e Filial de Login
+@description Formulario para Sele√ß√£o de Empresa e Filial de Login
 
 @author Helitom Silva
 @since  27/11/2013
@@ -282,7 +275,7 @@ Static Function MsgSelEmp()
 	cCodEmp := PadR(cCodEmp, 2)
 	cCodFil := PadR(cCodFil, 8)
 
-	/*DeclaraÁ„o de Variaveis Private dos Objetos*/
+	/*Declara√ß√£o de Variaveis Private dos Objetos*/
 	SetPrvt("oDlgTab","oPanelTab","oSayC","oSayR","oBtnOk","oBtnCc","oGtCons","oGtReve")
 
 	/*Definicao do Dialog e todos os seus componentes.*/
@@ -332,7 +325,7 @@ Return
 
 
 /*/{Protheus.doc} CarrConfig
-@description Carrega configuraÁıes
+@description Carrega configura√ß√µes
 
 @author Helitom Silva
 @since  27/11/2013
@@ -413,30 +406,3 @@ Static Function CarrConfig()
 	fClose(nHdl)
 
 Return
-
-
-/*/{Protheus.doc} AcessoExcPt
-@description Verifica se obtem acesso exclusivo
-
-@author Helitom Silva
-@since  19/09/2014
-
-/*/
-Static Function AcessoExcPt()
-
-	Local lRet := .F.
-	Local nX   := 0
-
-	For nX := 1 To 20
-	
-		DbUseArea( .T., , "SIGAMAT.EMP", "SM0", .F., .F. )
-
-		If !Empty( Select( "SM0" ) )
-			lRet := .T.
-			DbSetIndex( "SIGAMAT.IND" )
-			Exit
-		EndIf
-
-	Next
-
-Return lRet
