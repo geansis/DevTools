@@ -71,7 +71,7 @@ User Function UPDUSRPW(pUserId)
     cBody +=    '"password":"TESTE123"'
     cBody +=    '}'
     
-    Aadd(aHeadOut, "Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InBKd3RQdWJsaWNLZXlGb3IyNTYifQ.eyJpc3MiOiJUT1RWUy1BRFZQTC1GV0pXVCIsInN1YiI6IkdFQU5ERVJTT04uU0lMVkEiLCJpYXQiOjE2NzQyMzg1MzAsInVzZXJpZCI6IjAwMTM5MSIsImV4cCI6MTY3NDI0MjEzMCwiZW52SWQiOiJQMTJURVNURV8xIn0.g5Y5TzvmVmyG1ycu5LvdWZ-9hDbXwB7cf4CdlP9j_cM9fC38-pwf-wRtpmMP8fU-tl0mhlREH3EaO-92xj2545PjDAH22a-4dRlbHu5kc9Rg1LbEf3bgaTYvGYkYq02ttBRI1SVDuFOoh43Yz-o8tQQ64zSxp1LO1g79Xtyfmdgz_zZP_8A3XWBNxuuDzAWsn3myQ3ZBY9kb43WPJYkRzvAxmjEA69rf3dYjcMNuwvO8sYoe0BrO7ApSiyMQnaft5ukwLOjVUXMm050yvgkELBotVUVnH4M4LSEsRE4_xl3AICVcRnlkT_Mre1GqNpy33GT_XeKf5KUYm66cPFDQeA")
+    Aadd(aHeadOut, "Authorization: Bearer [gere um token com um usuario admin coloque aqui, sem os cochetes]")
     Aadd(aHeadOut, "Content-Type: application/json")
 
     oRestClient := FWRest():New(cUrl)
